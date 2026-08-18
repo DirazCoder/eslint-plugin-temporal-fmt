@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# npm
+npm-debug.log*
+package-lock.json.bak
+
+# Editor/OS junk
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Test/coverage output
+coverage/
+*.log
