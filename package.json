@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-temporal-fmt",
-  "version": "0.1.3",
+  "version": "0.1.0",
   "description": "ESLint plugin that statically analyzes format strings passed to temporal-fmt's format()/parse()/formatDuration()/formatDistance() — flags known-bad patterns at lint time that the library currently only catches at runtime.",
   "type": "module",
   "main": "./dist/index.js",
@@ -43,5 +43,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true
   }
 }
