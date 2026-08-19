@@ -30,10 +30,11 @@ test('rule: valid-format-string — flagged cases', () => {
         code: `format(date, 'yyyy-MM-dd HH h:mm a')`,
         errors: [{ messageId: 'mixed12And24Hour' }],
       },
-      // unknown token — `X` isn't in the token table
+      // unknown token — `X` is now a real offset token (temporal-fmt
+      // 0.8.7), so it no longer belongs here. `P` stays unknown.
       {
-        code: `format(date, 'yyyy-MM-dd X')`,
-        errors: [{ messageId: 'unknownToken', data: { token: 'X' } }],
+        code: `format(date, 'yyyy-MM-dd P')`,
+        errors: [{ messageId: 'unknownToken', data: { token: 'P' } }],
       },
       // unknown token — `ddo` parses as `dd` + `o` literal, but `o`
       // would be flagged as unknown if it wasn't a real duration token.
@@ -52,13 +53,27 @@ test('rule: valid-format-string — flagged cases', () => {
         code: `parse('yyyy-MM-dd h:mm', input)`,
         errors: [{ messageId: '12hourWithoutA' }],
       },
-      // formatDuration with an unknown token — but formatDuration has its
-      // own token table (y/o/w/d/h/m/s/S with single/double/triple forms),
-      // so the date-time table's `H`/`MM` etc. are unknown to it. The
-      // rule should still flag unknown tokens for formatDuration.
+      // formatDuration with an unknown token. Note: the tokenizer uses
+      // one shared KNOWN_TOKENS set for every call kind, so a token
+      // like `X` or `Q` that's valid for format()/parse() slips through
+      // uncaught here even though formatDuration doesn't accept it —
+      // pre-existing gap, gets wider as format()/parse()'s token table
+      // grows. `P` isn't a token anywhere, so it's still caught.
       {
-        code: `formatDuration(dur, 'X')`,
-        errors: [{ messageId: 'unknownToken', data: { token: 'X' } }],
+        code: `formatDuration(dur, 'P')`,
+        errors: [{ messageId: 'unknownToken', data: { token: 'P' } }],
+      },
+      // offset token without a full date — mirrors parse()'s "needs a
+      // full date and time to build a ZonedDateTime" throw.
+      {
+        code: `parse('HH:mm XXX', input)`,
+        errors: [{ messageId: 'offsetWithoutFullDate' }],
+      },
+      // zzz + an offset token together — mirrors parse()'s cross-check
+      // between the zone's actual offset and the parsed offset.
+      {
+        code: `format(date, 'yyyy-MM-dd HH:mm zzz XXX')`,
+        errors: [{ messageId: 'zzzWithOffsetToken' }],
       },
     ],
   });
@@ -78,6 +93,14 @@ test('rule: valid-format-string — non-flagged cases (valid format strings)', (
       `format(dt, 'EEE MMM d HH:mm:ss')`,
       // new tokens: do, Q, QQQ, ww, RRRR
       `format(date, 'do Q QQQ ww RRRR')`,
+      // offset tokens (temporal-fmt 0.8.7), each paired with a full
+      // date so they don't trip offsetWithoutFullDate
+      `format(zdt, 'yyyy-MM-dd HH:mm XXX')`,
+      `format(zdt, 'yyyy-MM-dd HH:mm xxx')`,
+      `parse('yyyy-MM-dd HH:mm X', input)`,
+      `parse('yyyy-MM-dd HH:mm XX', input)`,
+      `parse('yyyy-MM-dd HH:mm x', input)`,
+      `parse('yyyy-MM-dd HH:mm xx', input)`,
       // quoted literal passes through
       `format(date, "yyyy-MM-dd 'at' HH:mm")`,
       // parse() with a valid format

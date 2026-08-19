@@ -38,8 +38,9 @@ const KNOWN_TOKENS = new Set([
   'yyyy', 'yy', 'MMMM', 'MMM', 'MM', 'M', 'dd', 'd',
   'EEEE', 'EEE', 'HH', 'H', 'hh', 'h', 'mm', 'm', 'ss', 's',
   'SSS', 'a', 'zzz',
-  // new tokens added in this pass
   'do', 'Q', 'QQQ', 'ww', 'RRRR',
+  // UTC offset tokens (temporal-fmt 0.8.7)
+  'X', 'XX', 'XXX', 'x', 'xx', 'xxx',
 ]);
 
 // Sorted longest-first for the greedy scan, same as the runtime
@@ -210,6 +211,27 @@ function analyzeFormatString(formatStr: string, callKind: FormatCallKind): Findi
     findings.push({ messageId: 'mixed12And24Hour', data: {} });
   }
 
+  // Offset token (X/XX/XXX/x/xx/xxx) without a full date — runtime
+  // parse() throws because an offset alone can't anchor a ZonedDateTime.
+  // Reuses the date-token check rather than requiring hasTime too,
+  // since a bare-date-plus-offset string is still catchable statically
+  // and the runtime error names the same requirement.
+  const hasOffsetToken = tokens.some((t) => t === 'X' || t === 'XX' || t === 'XXX' || t === 'x' || t === 'xx' || t === 'xxx');
+  const hasDateToken = tokens.some((t) => DATE_ONLY_TOKENS.has(t));
+  if (hasOffsetToken && !hasDateToken) {
+    findings.push({ messageId: 'offsetWithoutFullDate', data: {} });
+  }
+
+  // zzz + an offset token together — runtime parse() cross-checks the
+  // offset against the zone's actual offset and throws on disagreement.
+  // Can't catch the disagreement itself at lint time (that depends on
+  // the parsed input, not the format string), but the combination is
+  // worth a heads-up since it's easy to introduce a contradictory pair.
+  const hasZzz = tokens.some((t) => t === 'zzz');
+  if (hasZzz && hasOffsetToken) {
+    findings.push({ messageId: 'zzzWithOffsetToken', data: {} });
+  }
+
   return findings;
 }
 
@@ -247,6 +269,10 @@ const rule: Rule = {
         '12-hour token ("hh"/"h") used without an "a" (AM/PM) token — parse() can\'t tell AM from PM and throws at runtime. Add an "a" token, or switch to a 24-hour "HH"/"H" form.',
       mixed12And24Hour:
         'Mixing 24-hour ("HH"/"H") and 12-hour ("hh"/"h") tokens in the same format string — parse() refuses to guess which is authoritative and throws at runtime. Pick one.',
+      offsetWithoutFullDate:
+        'Offset token ("X"/"XX"/"XXX"/"x"/"xx"/"xxx") used without a full date — parse() needs a complete date and time to build a ZonedDateTime and throws at runtime otherwise.',
+      zzzWithOffsetToken:
+        'Format string has both "zzz" and an offset token ("X"/"XX"/"XXX"/"x"/"xx"/"xxx") — parse() cross-checks them against each other and throws if the parsed offset disagrees with the zone\'s actual offset. Make sure any input you parse keeps them consistent.',
       typeMismatch:
         'Token "{{token}}" requires a field the value type {{valueType}} doesn\'t have — e.g. "HH" passed to format() alongside a Temporal.PlainDate. (Will throw at runtime: "requires" the missing field.)',
     },
