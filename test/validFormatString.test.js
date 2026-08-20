@@ -162,3 +162,50 @@ test('rule: valid-format-string — only the format-string literal is reported, 
     ],
   });
 });
+
+test('rule: valid-format-string — Phase 3 analyzer-backed checks surface new analyzeFormat warnings', () => {
+  // After Phase 3, the rule consumes temporal-fmt's analyzeFormat() for
+  // cross-token checks. New warnings added to analyzeFormat() surface
+  // here automatically via WARNING_CODE_TO_MESSAGE_ID. The
+  // ambiguousNumericRun warning is one such case — analyzeFormat flags
+  // "Md" (adjacent unpadded numeric tokens with no separator) as
+  // potentially ambiguous.
+  ruleTester.run('valid-format-string', validFormatString, {
+    valid: [],
+    invalid: [
+      // Adjacent unpadded numeric tokens — analyzeFormat flags as
+      // AMBIGUOUS_NUMERIC_RUN, surfaces as ambiguousNumericRun here.
+      {
+        code: `format(date, 'yyyy-Md')`,
+        errors: [{ messageId: 'ambiguousNumericRun' }],
+      },
+    ],
+  });
+});
+
+test('rule: valid-format-string — Phase 3 lets format() accept format-only tokens (do, ww, RRRR)', () => {
+  // format() accepts format-only tokens fine; only parse() rejects them.
+  // The rule filters the FORMAT_ONLY_TOKEN warning for format() calls
+  // so it doesn't false-positive on legitimate format-only usage.
+  ruleTester.run('valid-format-string', validFormatString, {
+    valid: [
+      `format(date, 'do Q QQQ ww RRRR')`,
+      `format(date, 'yyyy-MM-do')`,
+    ],
+    invalid: [],
+  });
+});
+
+test('rule: valid-format-string — Phase 3 surfaces FORMAT_ONLY_TOKEN for parse() calls', () => {
+  // parse() rejects format-only tokens (do/ww/RRRR) — the rule surfaces
+  // the FORMAT_ONLY_TOKEN warning for parse() calls.
+  ruleTester.run('valid-format-string', validFormatString, {
+    valid: [],
+    invalid: [
+      {
+        code: `parse('yyyy-MM-do', input)`,
+        errors: [{ messageId: 'formatOnlyToken' }],
+      },
+    ],
+  });
+});
