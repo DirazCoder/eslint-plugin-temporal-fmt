@@ -32,12 +32,13 @@
     "eslint": "^9.0.0"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "^8.67.0",
-    "temporal-fmt": "^0.8.9"
+    "@typescript-eslint/utils": "^8.68.0",
+    "esbuild": "^0.28.2",
+    "temporal-fmt": "^0.9.31"
   },
   "devDependencies": {
-    "@typescript-eslint/utils": "^8.67.0",
-    "eslint": "^10.8.1",
+    "@typescript-eslint/utils": "^8.68.0",
+    "eslint": "^10.9.1",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
   },
@@ -45,6 +46,7 @@
     "node": ">=20"
   },
   "allowScripts": {
-    "esbuild@0.27.7": true
+    "esbuild@0.28.2": true,
+    "esbuild@0.27.2": true
   }
 }
