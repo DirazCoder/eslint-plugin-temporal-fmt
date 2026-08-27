@@ -1,8 +1,15 @@
 # Dependencies
 node_modules/
 
-# Build output
+# Build output (published to npm but not tracked on main)
 dist/
+
+# Source/tests removed from main (kept on open-main, v0.2.1 and earlier)
+src/
+test/
+smoke-test/
+tsconfig.json
+tsup.config.ts
 
 # npm
 npm-debug.log*

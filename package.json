@@ -27,7 +27,7 @@
     "temporal",
     "temporal-fmt"
   ],
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "peerDependencies": {
     "eslint": "^9.0.0"
   },

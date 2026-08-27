@@ -133,4 +133,4 @@ format(date, "yyyy 'at' HH:mm")
 
 ## License
 
-MIT
+Proprietary — see [LICENSE](./LICENSE). Versions 0.2.1 and earlier remain available under the original MIT License.
