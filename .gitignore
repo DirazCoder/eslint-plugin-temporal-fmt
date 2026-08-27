@@ -24,3 +24,5 @@ package-lock.json.bak
 # Test/coverage output
 coverage/
 *.log
+
+scripts/

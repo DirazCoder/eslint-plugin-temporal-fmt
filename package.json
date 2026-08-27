@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsup && tsc --declaration --emitDeclarationOnly",
     "test": "node --test test/validFormatString.test.js",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "npm run build && npm test && node scripts/obfuscate.js"
   },
   "keywords": [
     "eslint",
