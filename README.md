@@ -1,6 +1,6 @@
 # eslint-plugin-temporal-fmt
 
-**Deprecated and archived.** This project is no longer maintained — no updates, no bug fixes, no security patches. Use at your own risk.
+**Deprecated and archived.** This was closed source, and I'm a single dev maintaining too many projects — I can't keep it in sync with temporal-fmt's changes anymore, and without other contributors able to help on the code, there's no path to keep it going. No updates, no bug fixes, no security patches — use at your own risk.
 
 Please don't open issues or PRs here; they won't be reviewed or answered.
 
