@@ -1,5 +1,13 @@
 # eslint-plugin-temporal-fmt
 
+**Deprecated and archived.** This project is no longer maintained — no updates, no bug fixes, no security patches. Use at your own risk.
+
+Please don't open issues or PRs here; they won't be reviewed or answered.
+
+If you're looking for something similar, check the ecosystem for actively maintained alternatives before adopting this.
+
+---
+
 Statically analyzes format strings passed to `temporal-fmt`'s `format()`, `parse()`, `formatDuration()`, and `formatDistance()` calls, and flags known-bad patterns at lint time that the library currently only catches at runtime.
 
 temporal-fmt is strict: it throws rather than guessing. That's the right behavior for a date library (silent wrong dates are worse than a thrown Error), but it means bugs surface in production instead of in CI. This plugin moves them to CI.
